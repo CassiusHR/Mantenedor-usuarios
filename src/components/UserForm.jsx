@@ -18,6 +18,13 @@ export default class UserForm extends Component {
     state = {
         errors: {}
     }
+    constructor(props){
+        super(props)
+        this.state = {
+            ...this.state,
+            ...props.valoresIniciales,
+        }
+    }
     handleChange = ({ target }) => {
         this.setState({
             [target.name]: target.value
@@ -28,25 +35,32 @@ export default class UserForm extends Component {
         e.preventDefault()
         const { errors, ...sinErrors } = this.state
         const result = validate(sinErrors)
-        this.setState({
-            errors:result
-        })
+        
         if (!Object.keys(result).length) {
-            const { handleSubmit } = this.props
+            const { handleSubmit, handleUpdate, valoresIniciales } = this.props
+            if (valoresIniciales.id){
+                handleUpdate(valoresIniciales.id, sinErrors)
+            } else {
+                handleSubmit(sinErrors)
+            }
             handleSubmit(sinErrors)
-            e.target.reset()
+        } else {
+            this.setState({
+                errors:result
+            })
         }
         
     }
     render(){
         const { errors } = this.state
+        const { valoresIniciales } = this.props
         return(
             <form onSubmit={this.handleSubmit}>
-                <input placeholder="nombre" name="name" onChange={this.handleChange}/>
+                <input defaultValue={valoresIniciales.name} placeholder="nombre" name="name" onChange={this.handleChange}/>
                 {errors.name && <p>{errors.name}</p>}
-                <input placeholder="email" name="email" onChange={this.handleChange}/>
+                <input defaultValue={valoresIniciales.email} placeholder="email" name="email" onChange={this.handleChange}/>
                 {errors.email && <p>{errors.email}</p>}
-                <input placeholder="sitio web" name="website" onChange={this.handleChange}/>
+                <input defaultValue={valoresIniciales.website} placeholder="sitio web" name="website" onChange={this.handleChange}/>
                 {errors.website && <p>{errors.website}</p>}
                 <input type="submit" value="enviar"/>
             </form>
